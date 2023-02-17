@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-import Mesto from './Mesto';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import Register from './Register';
 import Login from './Login';
 import Header from './Header';
@@ -11,6 +10,7 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
+import InfoToolTip from './InfoTooltip';
 import api from '../utils/Api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import ProtectedRoute from './ProtectedRoute';
@@ -20,12 +20,17 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [modalResponse, setModalResponse] = useState({ open: false, status: false });
   const [selectedCard, setSelectedCard] = useState({ name: '', link: '' });
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+  const [userEmail, setUserEmail] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
-
   const navigate = useNavigate();
+
+  useEffect(() => {
+    tokenCheck()
+  }, [loggedIn])
 
   useEffect(() => {
     Promise.all([
@@ -78,29 +83,39 @@ function App() {
     setIsEditAvatarPopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard({ name: '', link: '' });
+    setModalResponse({ open: false, status: modalResponse.status });
   }
 
-  function handleRegisterSubmit(email, password) {
+  function handleRegister({ email, password }) {
     auth.register(email, password)
-      .then(() => {
+      .then((res) => {
+        setModalResponse({ open: true, status: true });
         navigate("/sign-in");
-      })
+      }).catch(() => setModalResponse({ open: true, status: false }))
   }
 
-  function handleLoginSubmit(email, password) {
+  function handleLogin({ email, password }) {
     auth.login(email, password)
       .then(res => {
         localStorage.setItem("jwt", res.token)
-        console.log(localStorage.getItem("jwt"))
       }).then(() => {
         setLoggedIn(true)
-        navigate("/")
       }).catch(err => console.log(`Не удаётся войти. ${err}`))
   }
 
+  function tokenCheck() {
+    const jwt = localStorage.getItem('jwt')
+    if (jwt) auth.getContent(jwt)
+      .then((res) => {
+        setUserEmail(res.data.email)
+        navigate("/")
+      }).catch(navigate("/sign-in"))
+  }
+
   function signOut() {
-    console.log('выход')
     localStorage.removeItem("jwt")
+    setLoggedIn(false)
+    setUserEmail('')
     navigate("/sign-in")
   }
 
@@ -109,20 +124,23 @@ function App() {
       <div className="App">
         <div className="page">
           <div className="page__container">
+            <Header
+              loggedIn={loggedIn}
+              signOut={signOut}
+              userEmail={userEmail}
+            />
             <Routes>
-              <Route
-                path="/sign-up"
+              <Route path="/sign-up"
                 element={<Register
-                  onFormSubmit={handleRegisterSubmit} />}
+                  onFormSubmit={handleRegister} />}
               />
-              <Route
-                path="/sign-in"
+              <Route path="/sign-in"
                 element={<Login
-                  onFormSubmit={handleLoginSubmit} />}
+                  onFormSubmit={handleLogin} />}
               />
               <Route path="/"
                 element={<ProtectedRoute
-                  element={Mesto}
+                  element={Main}
                   loggedIn={loggedIn}
                   onEditProfile={handleEditProfileClick}
                   onAddPlace={handleAddPlaceClick}
@@ -131,13 +149,18 @@ function App() {
                   onCardLike={handleCardLike}
                   onCardDelete={handleCardDelete}
                   cards={cards}
-                  signOut={signOut}
-                />
-                }
+                />}
+              />
+              <Route path="*"
+                element={loggedIn ? <Navigate to="/" /> : <Navigate to="sign-in" />}
               />
             </Routes>
             {loggedIn && <Footer />}
           </div>
+          <InfoToolTip
+            modalResponse={modalResponse}
+            onClose={closeAllPopups}
+          />
           <EditProfilePopup
             isOpen={isEditProfilePopupOpen}
             onClose={closeAllPopups}

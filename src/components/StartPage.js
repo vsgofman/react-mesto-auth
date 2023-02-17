@@ -1,9 +1,7 @@
-import { Children, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Header from './Header';
+import { useState } from 'react';
 import './styles/StartPage.css';
 
-function StartPage({ textButtonHeader, navLink, title, textButtonSubmit, onFormSubmit, children }) {
+function StartPage({ title, textButtonSubmit, onFormSubmit, children }) {
   const [userData, setUserData] = useState({
     email: '',
     password: ''
@@ -19,16 +17,12 @@ function StartPage({ textButtonHeader, navLink, title, textButtonSubmit, onFormS
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    let { email, password } = userData;
-    onFormSubmit(email, password);
+    if (!userData.email || !userData.password) return
+    onFormSubmit(userData)
   }
 
   return (
     <>
-      <Header
-        textButton={textButtonHeader}
-        navLink={navLink}
-      />
       <div className="start-page">
         <h2 className="start-page__title">{title}</h2>
         <form className="form start-page__form">

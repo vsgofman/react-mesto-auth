@@ -1,11 +1,9 @@
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import StartPage from "./StartPage";
 
 function Register({ onFormSubmit }) {
   return (
     <StartPage
-      textButtonHeader="Войти"
-      navLink={<NavLink className="header__button" to="/sign-in" />}
       title="Регистрация"
       textButtonSubmit="Зарегистрироваться"
       onFormSubmit={onFormSubmit}>
