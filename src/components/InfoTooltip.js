@@ -7,7 +7,7 @@ function InfoToolTip({ modalResponse, onClose }) {
     <div className={`modal ${modalResponse.open ? 'modal_opened' : ''}`}>
       <div className="modal__container">
         <button className="modal__close" onClick={onClose} type="button" aria-label="Закрыть окно" />
-        <img className="modal__img"
+        <img className="modal__img" alt="Иконка результата"
           src={modalResponse.status ? modalOkImg : modalErrorImg} 
         />
         <h2 className="modal__title">

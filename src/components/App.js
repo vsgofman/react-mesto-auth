@@ -14,7 +14,7 @@ import InfoToolTip from './InfoTooltip';
 import api from '../utils/Api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import ProtectedRoute from './ProtectedRoute';
-import * as auth from '../auth.js';
+import * as auth from '../utils/auth.js';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -107,6 +107,7 @@ function App() {
     const jwt = localStorage.getItem('jwt')
     if (jwt) auth.getContent(jwt)
       .then((res) => {
+        setLoggedIn(true)
         setUserEmail(res.data.email)
         navigate("/")
       }).catch(navigate("/sign-in"))

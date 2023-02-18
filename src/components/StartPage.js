@@ -22,10 +22,9 @@ function StartPage({ title, textButtonSubmit, onFormSubmit, children }) {
   }
 
   return (
-    <>
       <div className="start-page">
         <h2 className="start-page__title">{title}</h2>
-        <form className="form start-page__form">
+        <form className="form start-page__form" onSubmit={handleSubmit}>
           <input
             id="email-input"
             className="start-page__input"
@@ -42,12 +41,10 @@ function StartPage({ title, textButtonSubmit, onFormSubmit, children }) {
           />
           <button
             className="start-page__button"
-            onClick={handleSubmit}
             type="submit" aria-label={textButtonSubmit}>{textButtonSubmit}</button>
         </form>
         {children}
       </div>
-    </>
   )
 }
 
