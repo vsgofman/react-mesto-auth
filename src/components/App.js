@@ -27,6 +27,7 @@ function App() {
   const [userEmail, setUserEmail] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || selectedCard.link;
   const navigate = useNavigate();
 
   const tokenCheck = useCallback(() => {
@@ -54,6 +55,20 @@ function App() {
       }).catch((err) => console.log(`Данные не загрузились. ${err}`))
     }
   }, [loggedIn])
+
+  useEffect(() => {
+    function closeByEscape(evt) {
+      if (evt.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('keydown', closeByEscape);
+      return () => {
+        document.removeEventListener('keydown', closeByEscape);
+      }
+    }
+  }, [isOpen])
 
   function handleEditProfileClick() { setIsEditProfilePopupOpen(true); }
   function handleEditAvatarClick() { setIsEditAvatarPopupOpen(true); }
