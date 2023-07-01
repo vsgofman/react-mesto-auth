@@ -26,6 +26,7 @@ function App() {
   const [cards, setCards] = useState([]);
   const [userEmail, setUserEmail] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const tokenCheck = useCallback(() => {
@@ -74,25 +75,31 @@ function App() {
   }
 
   function handleUpdateUser({ name, about }) {
+    setIsLoading(true);
     api.editProfile(name, about)
       .then((res) => {
         setCurrentUser(res);
         closeAllPopups();
       }).catch(err => console.log(`Данные профиля не были обновлены. ${err}`))
+      .finally(() => { setIsLoading(false) })
   }
 
   function handleUpdateAvatar({ avatar }) {
+    setIsLoading(true);
     api.editAvatar(avatar).then((res) => {
       setCurrentUser(res);
       closeAllPopups();
     }).catch(err => console.log(`Не удалось обновить аватар. ${err}`))
+      .finally(() => { setIsLoading(false) })
   }
 
   function handleAddPlaceSubmit({ name, link }) {
+    setIsLoading(true);
     api.addCard(name, link).then((newCard) => {
       setCards([newCard, ...cards]);
       closeAllPopups();
     }).catch(err => console.log(`Карточка не добавилась. ${err}`))
+      .finally(() => { setIsLoading(false) })
   }
 
   function closeAllPopups() {
@@ -120,7 +127,7 @@ function App() {
         setLoggedIn(true)
       }).catch(err => console.log(`Не удаётся войти. ${err}`))
   }
-  
+
   function signOut() {
     localStorage.removeItem("jwt")
     setLoggedIn(false)
@@ -175,16 +182,19 @@ function App() {
             isOpen={isEditProfilePopupOpen}
             onClose={closeAllPopups}
             onUpdateUser={handleUpdateUser}
+            isLoading={isLoading}
           />
           <AddPlacePopup
             isOpen={isAddPlacePopupOpen}
             onClose={closeAllPopups}
             onAddPlace={handleAddPlaceSubmit}
+            isLoading={isLoading}
           />
           <EditAvatarPopup
             isOpen={isEditAvatarPopupOpen}
             onClose={closeAllPopups}
             onUpdateAvatar={handleUpdateAvatar}
+            isLoading={isLoading}
           />
           {/* Confirm delete */}
           <PopupWithForm
